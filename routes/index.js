@@ -1,14 +1,15 @@
 'use strict';
 var express = require('express');
 var router = express.Router();
-var tweetBank = require('../tweetBank');
+//var tweetBank = require('../tweetBank');
 var client = require('../db');
 
 module.exports = function makeRouterWithSockets (io) {
 
   // a reusable function
   function respondWithAllTweets (req, res, next){
-    var allTheTweets = client.query('SELECT users.name, tweets.content, tweets.id FROM users INNER JOIN tweets ON users.id=tweets.userid', function(err,data){
+    client.query('SELECT users.name, tweets.content, tweets.id FROM users INNER JOIN tweets ON users.id=tweets.userid', function(err,data){
+      if (err) {console.error(err)}
       // do some error thing
       res.render('index', {
         title: 'Twitter.js',
@@ -27,7 +28,7 @@ module.exports = function makeRouterWithSockets (io) {
     var username = req.params.username;
 
     var tweetsForName = client.query('SELECT users.name, tweets.content, tweets.id FROM users INNER JOIN tweets ON users.id=tweets.userid WHERE users.name = $1', [username], function(err,data){
-      // do some error thing
+      if (err) {console.error(err)}// do some error thing
       res.render('index', {
         title: 'Twitter.js',
         tweets: data.rows,
@@ -58,14 +59,16 @@ module.exports = function makeRouterWithSockets (io) {
 
     function getId(){
       client.query('SELECT id FROM users WHERE name = $1', [user], function (err, data){
-
+        if(err) {console.error(err);}
         if(data.rows.length==0){
+          console.log('adding');
           client.query('INSERT INTO users (name) VALUES ($1)', [user], function(err, data){
+            if(err) {console.error(err);}
             getId();
           });
         }
-        userId = data.rows[0].id;
-        addNewTweet();
+        else {userId = data.rows[0].id;
+        addNewTweet();}
       });
     }
 
