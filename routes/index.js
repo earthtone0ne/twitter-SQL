@@ -61,14 +61,16 @@ module.exports = function makeRouterWithSockets (io) {
       client.query('SELECT id FROM users WHERE name = $1', [user], function (err, data){
         if(err) {console.error(err);}
         if(data.rows.length==0){
-          console.log('adding');
+          //console.log('adding');
           client.query('INSERT INTO users (name) VALUES ($1)', [user], function(err, data){
             if(err) {console.error(err);}
             getId();
           });
         }
-        else {userId = data.rows[0].id;
-        addNewTweet();}
+        else {
+          userId = data.rows[0].id;
+          addNewTweet();
+        }
       });
     }
 
