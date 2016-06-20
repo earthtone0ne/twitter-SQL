@@ -58,8 +58,9 @@ module.exports = function makeRouterWithSockets (io) {
 
     function getId(){
       client.query('SELECT id FROM users WHERE name = $1', [user], function (err, data){
-        if(data.rows == []){
-          client.query('INSERT INTO users (name) VALUES ($1)', [name], function(err, data){
+
+        if(data.rows.length==0){
+          client.query('INSERT INTO users (name) VALUES ($1)', [user], function(err, data){
             getId();
           });
         }
